@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Convite • Olivia 1 aninho</title>
+<style>
+  :root { --ratio: 0.5625; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body {
+    background: linear-gradient(160deg, #cfe8ff, #ffd9ec 55%, #e6d9ff);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    user-select: none; -webkit-user-select: none;
+  }
+
+  /* Cada "tela" é centralizada e mantém a proporção da imagem */
+  .screen {
+    position: fixed; inset: 0;
+    display: none; align-items: center; justify-content: center;
+  }
+  .screen.active { display: flex; }
+
+  .stage {
+    position: relative;
+    aspect-ratio: var(--ratio);
+    height: min(100dvh, calc(100vw / var(--ratio)));
+    background-size: 100% 100%;
+    overflow: hidden;
+  }
+  .stage img.bg, .stage video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block; pointer-events: none;
+  }
+
+  /* Áreas clicáveis (posicionadas em % sobre a imagem) */
+  .hit {
+    position: absolute; display: block; cursor: pointer;
+    background: transparent; border: 0; padding: 0;
+    border-radius: 24px;
+  }
+  .hit:focus-visible { outline: 2px solid rgba(255, 215, 120, .9); }
+
+  /* Tela 1: o toque em qualquer parte inicia o vídeo */
+  #s-primeira .stage { cursor: pointer; }
+  #s-primeira .full { position: absolute; inset: 0; }
+
+  /* Botões delicados */
+  .soft-btn {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-family: "Georgia", "Times New Roman", serif; font-style: italic;
+    letter-spacing: .04em; color: rgba(255,255,255,.92);
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.55);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border-radius: 999px; padding: .55em 1.4em;
+    font-size: clamp(12px, 3.4vw, 16px);
+    text-shadow: 0 1px 4px rgba(0,0,0,.35);
+    box-shadow: 0 2px 14px rgba(0,0,0,.12);
+    cursor: pointer; white-space: nowrap;
+    transition: background .25s, transform .25s;
+  }
+  .soft-btn:hover { background: rgba(255,255,255,.3); }
+  #skip { bottom: calc(3.2% + env(safe-area-inset-bottom)); }
+  #back {
+    top: 1.3%;
+    color: #c2477f; text-shadow: none;
+    background: rgba(255,255,255,.72);
+    border-color: rgba(255,200,120,.9);
+    font-size: clamp(11px, 3vw, 14px);
+  }
+
+  /* Brilhos dourados */
+  #sparkles { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+  .spark {
+    position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+    background: radial-gradient(circle, #fffbe0 0%, #ffd86b 40%, #e0a526 70%, rgba(224,165,38,0) 72%);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    filter: drop-shadow(0 0 4px rgba(255, 210, 90, .95));
+    will-change: transform, opacity;
+  }
+  .dot {
+    position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+    background: #ffe28a; box-shadow: 0 0 8px 2px rgba(255, 205, 80, .9);
+    will-change: transform, opacity;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1) Capa: clique para abrir -->
+<section class="screen active" id="s-primeira">
+  <div class="stage" style="--ratio:0.5625">
+    <img class="bg" src="primeira.jpg" alt="Clique no envelope para abrir seu convite">
+    <div class="full" id="open-area" role="button" aria-label="Abrir convite" tabindex="0"></div>
+  </div>
+</section>
+
+<!-- 2) Vídeo -->
+<section class="screen" id="s-video">
+  <div class="stage" style="--ratio:0.5422">
+    <video id="video" src="video.mp4" playsinline webkit-playsinline preload="auto"></video>
+    <button class="soft-btn" id="skip" type="button">pule a introdução</button>
+  </div>
+</section>
+
+<!-- 3) Convite interativo -->
+<section class="screen" id="s-interativo">
+  <div class="stage" style="--ratio:0.5625">
+    <img class="bg" src="interativo.jpg" alt="Convite de aniversário de 1 aninho da Olivia">
+    <a class="hit" id="btn-presenca" href="https://wa.me/5514998925183" aria-label="Confirme sua presença"
+       style="left:8%;top:72.5%;width:27%;height:24%"></a>
+    <a class="hit" id="btn-local" href="https://maps.app.goo.gl/p7hgjrMivY3Jy1Ez6" aria-label="Veja a localização"
+       style="left:37.5%;top:72.5%;width:27%;height:24%"></a>
+    <button class="hit" id="btn-presentes" type="button" aria-label="Sugestões de presente"
+       style="left:66%;top:72.5%;width:27%;height:24%"></button>
+  </div>
+</section>
+
+<!-- 4) Sugestões de presentes -->
+<section class="screen" id="s-presentes">
+  <div class="stage" style="--ratio:0.5625">
+    <img class="bg" src="presentes.jpg" alt="Sugestões de presentes">
+    <button class="hit" id="back" type="button" aria-label="Voltar ao convite"
+       style="left:0;top:11.8%;width:30%;height:6.4%"></button>
+  </div>
+</section>
+
+<div id="sparkles"></div>
+
+<script>
+(function () {
+  var screens = {
+    primeira:   document.getElementById('s-primeira'),
+    video:      document.getElementById('s-video'),
+    interativo: document.getElementById('s-interativo'),
+    presentes:  document.getElementById('s-presentes')
+  };
+  var video = document.getElementById('video');
+
+  function show(name) {
+    for (var k in screens) screens[k].classList.toggle('active', k === name);
+  }
+
+  // Pré-carrega as imagens seguintes
+  ['interativo.jpg', 'presentes.jpg'].forEach(function (src) { new Image().src = src; });
+
+  /* ---------- Fluxo ---------- */
+  function startVideo() {
+    show('video');
+    video.currentTime = 0;
+    var p = video.play();
+    if (p && p.catch) {
+      p.catch(function () {
+        // Se o navegador bloquear o som, tenta sem áudio
+        video.muted = true;
+        video.play().catch(function () {});
+      });
+    }
+  }
+  function goInteractive() {
+    video.pause();
+    show('interativo');
+  }
+
+  var openArea = document.getElementById('open-area');
+  openArea.addEventListener('click', startVideo);
+  openArea.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startVideo(); }
+  });
+
+  document.getElementById('skip').addEventListener('click', goInteractive);
+  video.addEventListener('ended', goInteractive);
+
+  document.getElementById('btn-presentes').addEventListener('click', function () { show('presentes'); });
+  document.getElementById('back').addEventListener('click', function () { show('interativo'); });
+
+  // Links externos: pequena pausa para os brilhos aparecerem antes de sair
+  ['btn-presenca', 'btn-local'].forEach(function (id) {
+    var a = document.getElementById(id);
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      var url = a.href;
+      setTimeout(function () { window.location.href = url; }, 350);
+    });
+  });
+
+  /* ---------- Brilhos dourados ---------- */
+  var layer = document.getElementById('sparkles');
+  function burst(x, y) {
+    var n = 14;
+    for (var i = 0; i < n; i++) {
+      var el = document.createElement('div');
+      var isStar = i % 3 !== 0;
+      el.className = isStar ? 'spark' : 'dot';
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      layer.appendChild(el);
+
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 30 + Math.random() * 70;
+      var dx = Math.cos(angle) * dist;
+      var dy = Math.sin(angle) * dist - 12;
+      var s = 0.6 + Math.random() * 0.9;
+      var dur = 650 + Math.random() * 500;
+
+      var anim = el.animate([
+        { transform: 'translate(0,0) scale(0.2) rotate(0deg)', opacity: 1 },
+        { transform: 'translate(' + dx * 0.6 + 'px,' + dy * 0.6 + 'px) scale(' + s + ') rotate(90deg)', opacity: 1, offset: 0.45 },
+        { transform: 'translate(' + dx + 'px,' + (dy + 24) + 'px) scale(0) rotate(180deg)', opacity: 0 }
+      ], { duration: dur, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      anim.onfinish = (function (node) { return function () { node.remove(); }; })(el);
+    }
+  }
+  document.addEventListener('pointerdown', function (e) { burst(e.clientX, e.clientY); }, true);
+})();
+</script>
+</body>
+</html>
